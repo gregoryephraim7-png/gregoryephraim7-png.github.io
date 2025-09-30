@@ -136,7 +136,6 @@ app.get('/api/convert', (req, res) => {
         amount: parseFloat(amount),
         rate,
         result: parseFloat(result),
-        user: req.user.email
     });
 });
 
