@@ -9,6 +9,25 @@ const JWT_SECRET = 'your-super-secret-key-change-in-production';
 
 app.use(cors());
 app.use(express.json());
+// Root route
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'Currency Converter API is running!',
+    status: 'OK',
+    version: '1.0.0',
+    timestamp: new Date().toISOString(),
+    endpoints: {
+      auth: '/api/auth',
+      convert: '/api/convert',
+      profile: '/api/profile'
+    }
+  });
+});
+
+// Health check
+app.get('/health', (req, res) => {
+  res.json({ status: 'OK', timestamp: new Date().toISOString() });
+});
 
 // Enhanced user storage with roles and permissions
 let users = [
