@@ -2,9 +2,9 @@
   "name": "currency-converter-backend",
   "version": "1.0.0",
   "description": "Backend API for currency converter",
-  "main": "server-auth.js",
+  "main": "server-auth-with-users.js",
   "scripts": {
-    "start": "node server-auth.js"
+    "start": "node server-auth-with-users.js"
   },
   "dependencies": {
     "express": "^4.18.0",
