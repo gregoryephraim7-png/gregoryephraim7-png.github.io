@@ -468,3 +468,155 @@ app.listen(PORT, () => {
     console.log(`📊 User Roles: ${users.length} users loaded`);
 });
 
+
+// =====================
+// ADMIN API ENDPOINTS
+// =====================
+
+// Middleware to verify admin role
+function requireAdmin(req, res, next) {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    if (!token) {
+        return res.status(401).json({ error: 'Authentication required' });
+    }
+    
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const user = users.find(u => u.id === decoded.userId);
+        
+        if (!user || user.role !== 'admin') {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        
+        req.user = user;
+        next();
+    } catch (error) {
+        res.status(401).json({ error: 'Invalid token' });
+    }
+}
+
+// Get all users (admin only)
+app.get('/api/admin/users', requireAdmin, (req, res) => {
+    try {
+        // Return users list without passwords
+        const usersWithoutPasswords = users.map(u => ({
+            id: u.id,
+            name: u.name,
+            email: u.email,
+            role: u.role,
+            permissions: u.permissions,
+            isVerified: u.isVerified,
+            createdAt: u.createdAt,
+            lastLogin: u.lastLogin
+        }));
+        
+        res.json(usersWithoutPasswords);
+    } catch (error) {
+        console.error('Error fetching users:', error);
+        res.status(500).json({ error: 'Failed to fetch users' });
+    }
+});
+
+// Get admin statistics (admin only)
+app.get('/api/admin/stats', requireAdmin, (req, res) => {
+    try {
+        const stats = {
+            totalUsers: users.length,
+            adminUsers: users.filter(u => u.role === 'admin').length,
+            premiumUsers: users.filter(u => u.role === 'premium').length,
+            regularUsers: users.filter(u => u.role === 'user').length,
+            totalLogs: systemLogs.length,
+            recentActivity: systemLogs.slice(-10).reverse()
+        };
+        
+        res.json(stats);
+    } catch (error) {
+        console.error('Error fetching stats:', error);
+        res.status(500).json({ error: 'Failed to fetch statistics' });
+    }
+});
+
+// Update user role (admin only)
+app.put('/api/admin/users/:userId/role', requireAdmin, (req, res) => {
+    try {
+        const { userId } = req.params;
+        const { role } = req.body;
+        
+        if (!['user', 'premium', 'admin'].includes(role)) {
+            return res.status(400).json({ error: 'Invalid role' });
+        }
+        
+        const user = users.find(u => u.id === userId);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        
+        user.role = role;
+        
+        // Log the action
+        logActivity(req.user.id, 'USER_ROLE_UPDATED', { 
+            targetUserId: userId, 
+            newRole: role,
+            adminId: req.user.id
+        });
+        
+        res.json({ 
+            message: `User role updated to ${role}`,
+            user: {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                role: user.role
+            }
+        });
+    } catch (error) {
+        console.error('Error updating user role:', error);
+        res.status(500).json({ error: 'Failed to update user role' });
+    }
+});
+
+// Delete user (admin only)
+app.delete('/api/admin/users/:userId', requireAdmin, (req, res) => {
+    try {
+        const { userId } = req.params;
+        
+        // Prevent admin from deleting themselves
+        if (userId === req.user.id) {
+            return res.status(400).json({ error: 'Cannot delete your own account' });
+        }
+        
+        const userIndex = users.findIndex(u => u.id === userId);
+        if (userIndex === -1) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        
+        const deletedUser = users[userIndex];
+        users.splice(userIndex, 1);
+        
+        // Log the action
+        logActivity(req.user.id, 'USER_DELETED', { 
+            targetUserId: userId,
+            targetUserEmail: deletedUser.email,
+            adminId: req.user.id
+        });
+        
+        res.json({ message: 'User deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting user:', error);
+        res.status(500).json({ error: 'Failed to delete user' });
+    }
+});
+
+// Get system logs (admin only)
+app.get('/api/admin/logs', requireAdmin, (req, res) => {
+    try {
+        const { limit = 50 } = req.query;
+        const recentLogs = systemLogs.slice(-limit).reverse();
+        res.json(recentLogs);
+    } catch (error) {
+        console.error('Error fetching logs:', error);
+        res.status(500).json({ error: 'Failed to fetch system logs' });
+    }
+});
+
+console.log('🔐 Admin endpoints loaded successfully');
