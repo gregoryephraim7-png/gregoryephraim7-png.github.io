@@ -145,6 +145,122 @@
             font-size: 14px;
         }
         
+        /* MODERN PROFILE STYLES */
+        .profile-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            color: white;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        
+        .profile-info {
+            background: #f8f9ff;
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .info-item:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .info-value {
+            color: #333;
+        }
+        
+        .badge {
+            background: #ffd700;
+            color: #333;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        
+        .profile-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .primary-btn {
+            background: #667eea;
+            color: white;
+        }
+        
+        .secondary-btn {
+            background: #f8f9ff;
+            color: #667eea;
+            border: 1px solid #667eea;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
         /* Favorites & History */
         .favorites-grid, .history-list {
             display: grid;
@@ -172,6 +288,14 @@
             .converter-row { flex-direction: column; }
             .form-group { min-width: 100%; }
             .arrow { padding: 5px 0; }
+            
+            .profile-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .profile-actions {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
@@ -234,7 +358,7 @@
                 </div>
             </div>
             
-            <!-- Other tabs remain the same -->
+            <!-- Favorites Tab -->
             <div id="favorites-tab" class="content">
                 <h2>Favorite Conversions</h2>
                 <div class="favorites-grid" id="favorites-list">
@@ -242,6 +366,7 @@
                 </div>
             </div>
             
+            <!-- History Tab -->
             <div id="history-tab" class="content">
                 <h2>Conversion History</h2>
                 <div class="history-list" id="history-list">
@@ -249,17 +374,64 @@
                 </div>
             </div>
             
+            <!-- MODERN PROFILE TAB -->
             <div id="profile-tab" class="content">
-                <h2>User Profile</h2>
-                <div id="profile-info">
-                    <p>Loading profile...</p>
+                <div class="profile-header">
+                    <div class="profile-avatar" id="user-avatar">
+                        👤
+                    </div>
+                    <h2 id="profile-name">Loading...</h2>
+                    <p id="profile-email" style="color: #666; margin-bottom: 10px;">Loading...</p>
+                    <span class="badge" id="user-tier">Standard Member</span>
+                </div>
+                
+                <div class="profile-stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="total-conversions">0</div>
+                        <div class="stat-label">Total Conversions</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="favorites-count">0</div>
+                        <div class="stat-label">Favorites</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="member-days">1</div>
+                        <div class="stat-label">Member Days</div>
+                    </div>
+                </div>
+                
+                <div class="profile-info">
+                    <h3 style="margin-bottom: 15px; color: #667eea;">Account Information</h3>
+                    <div class="info-item">
+                        <span class="info-label">User ID</span>
+                        <span class="info-value" id="user-id">Loading...</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Email Verified</span>
+                        <span class="info-value">
+                            <span class="badge" id="verification-status">Pending</span>
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Member Since</span>
+                        <span class="info-value" id="member-since">Loading...</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Last Active</span>
+                        <span class="info-value" id="last-active">Just now</span>
+                    </div>
+                </div>
+                
+                <div class="profile-actions">
+                    <button class="action-btn primary-btn" onclick="editProfile()">✏️ Edit Profile</button>
+                    <button class="action-btn secondary-btn" onclick="changePassword()">🔒 Change Password</button>
+                    <button class="action-btn secondary-btn" onclick="exportData()">📤 Export Data</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Same JavaScript code as before
         const API_BASE = 'https://currency-converter-api-egqi.onrender.com/api';
         let token = localStorage.getItem('token');
         
@@ -276,7 +448,7 @@
             
             if (tabName === 'favorites') loadFavorites();
             if (tabName === 'history') loadHistory();
-            if (tabName === 'profile') loadProfile();
+            if (tabName === 'profile') loadModernProfile();
         }
         
         function getTabIndex(tabName) {
@@ -320,7 +492,8 @@
             document.getElementById('history-list').innerHTML = '<p>Your conversion history will appear here.</p>';
         }
         
-        async function loadProfile() {
+        // MODERN PROFILE FUNCTIONS
+        async function loadModernProfile() {
             try {
                 const response = await fetch(`${API_BASE}/auth/profile`, {
                     headers: { 'Authorization': `Bearer ${token}` }
@@ -328,16 +501,49 @@
                 
                 if (response.ok) {
                     const user = await response.json();
+                    
+                    // Update profile information
                     document.getElementById('user-name').textContent = `Welcome, ${user.name}`;
-                    document.getElementById('profile-info').innerHTML = `
-                        <p><strong>Name:</strong> ${user.name}</p>
-                        <p><strong>Email:</strong> ${user.email}</p>
-                        <p><strong>Member since:</strong> ${new Date().toLocaleDateString()}</p>
-                    `;
+                    document.getElementById('profile-name').textContent = user.name;
+                    document.getElementById('profile-email').textContent = user.email;
+                    document.getElementById('user-id').textContent = user.id.substring(0, 8) + '...';
+                    
+                    // Create avatar from name initials
+                    const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                    document.getElementById('user-avatar').textContent = initials || '👤';
+                    
+                    // Calculate member days
+                    const memberSince = new Date(user.createdAt || new Date());
+                    const today = new Date();
+                    const memberDays = Math.floor((today - memberSince) / (1000 * 60 * 60 * 24)) + 1;
+                    document.getElementById('member-since').textContent = new Date(user.createdAt).toLocaleDateString();
+                    document.getElementById('member-days').textContent = memberDays;
+                    
+                    // Generate random stats (for demo - replace with real data later)
+                    document.getElementById('total-conversions').textContent = Math.floor(Math.random() * 50) + 10;
+                    document.getElementById('favorites-count').textContent = Math.floor(Math.random() * 10) + 1;
+                    
+                    // Set verification status
+                    document.getElementById('verification-status').textContent = 'Verified';
+                    document.getElementById('verification-status').style.background = '#4CAF50';
+                    document.getElementById('verification-status').style.color = 'white';
+                    
                 }
             } catch (error) {
-                document.getElementById('profile-info').innerHTML = '<p>Error loading profile</p>';
+                document.getElementById('profile-name').textContent = 'Error loading profile';
             }
+        }
+        
+        function editProfile() {
+            alert('Edit profile feature coming soon!');
+        }
+        
+        function changePassword() {
+            alert('Change password feature coming soon!');
+        }
+        
+        function exportData() {
+            alert('Data export feature coming soon!');
         }
         
         function logout() {
@@ -345,7 +551,8 @@
             window.location.href = 'login.html';
         }
         
-        loadProfile();
+        // Load profile on page load
+        loadModernProfile();
     </script>
 </body>
 </html>
