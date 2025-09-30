@@ -128,7 +128,7 @@ function logActivity(userId, action, details) {
         action,
         details,
         timestamp: new Date().toISOString(),
-        ipAddress: req.ip // In production, get real IP
+        ipAddress: "127.0.0.1"
     });
     if (systemLogs.length > 1000) systemLogs.shift();
 }
@@ -467,3 +467,4 @@ app.listen(PORT, () => {
     console.log(`💎 Premium Features: Enabled`);
     console.log(`📊 User Roles: ${users.length} users loaded`);
 });
+
