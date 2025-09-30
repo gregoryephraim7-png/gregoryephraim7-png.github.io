@@ -1,0 +1,16 @@
+{
+  "name": "currency-converter-backend",
+  "version": "1.0.0",
+  "description": "Backend API for currency converter",
+  "main": "server-combined.js",
+  "scripts": {
+    "start": "node server-combined.js"
+  },
+  "dependencies": {
+    "express": "^4.18.0",
+    "cors": "^2.8.5"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
