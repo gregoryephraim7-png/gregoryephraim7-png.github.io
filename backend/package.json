@@ -2,13 +2,15 @@
   "name": "currency-converter-backend",
   "version": "1.0.0",
   "description": "Backend API for currency converter",
-  "main": "server-combined.js",
+  "main": "server-auth.js",
   "scripts": {
-    "start": "node server-combined.js"
+    "start": "node server-auth.js"
   },
   "dependencies": {
     "express": "^4.18.0",
-    "cors": "^2.8.5"
+    "cors": "^2.8.5",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.0"
   },
   "engines": {
     "node": ">=14.0.0"
