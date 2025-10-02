@@ -48,7 +48,7 @@
             const from = document.getElementById('from').value;
             const to = document.getElementById('to').value;
 
-            const response = await fetch('/convert', {
+            const response = await fetch('https://currency-converter-api-egqi.onrender.com/convert', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ amount: parseFloat(amount), from, to })
