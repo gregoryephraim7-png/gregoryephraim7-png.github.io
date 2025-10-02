@@ -6,23 +6,32 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 10000;
 
-// Middleware - Allow CORS for all origins since frontend might be anywhere
-app.use(cors({
-    origin: '*',
-    methods: ['GET', 'POST'],
-    credentials: false
-}));
-
+// Middleware
+app.use(cors());
 app.use(express.json());
-app.use(express.static('.'));
+app.use(express.static(__dirname)); // Serve all static files from current directory
 
-// ... (keep the rest of your server code the same)
+let exchangeRates = {};
+let lastUpdated = null;
 
-// Serve the main page
-app.get('/', (req, res) => {
+// ... (keep all your existing currency mapping and conversion logic here)
+
+// Health check
+app.get('/health', (req, res) => {
+    res.json({ 
+        status: 'OK', 
+        service: 'Currency Converter API',
+        lastUpdated: lastUpdated
+    });
+});
+
+// Serve the main page for ALL routes
+app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`🚀 Currency Converter running on port ${PORT}`);
+    console.log(`🌍 Frontend served from backend`);
+    console.log(`📊 Access at: https://currency-converter-api-egqi.onrender.com`);
 });
