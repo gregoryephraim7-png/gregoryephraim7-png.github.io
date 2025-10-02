@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Currency Converter - Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f6fa;
+            color: #333;
+        }
+        .header {
+            background: white;
+            padding: 15px 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo { font-size: 20px; font-weight: bold; color: #667eea; }
+        .user-menu { display: flex; align-items: center; gap: 15px; font-size: 14px; }
+        .logout-btn { 
+            padding: 6px 12px; 
+            background: #e74c3c; 
+            color: white; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            font-size: 12px;
+        }
+        
+        .container {
+            max-width: 100%;
+            margin: 20px auto;
+            padding: 0 15px;
+        }
+        
+        .tabs {
+            display: flex;
+            background: white;
+            border-radius: 10px 10px 0 0;
+            overflow-x: auto;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .tab {
+            padding: 12px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            white-space: nowrap;
+            font-size: 14px;
+        }
+        .tab.active {
+            border-bottom: 3px solid #667eea;
+            color: #667eea;
+            background: #f8f9ff;
+        }
+        
+        .tab-content {
+            background: white;
+            padding: 20px;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            min-height: 400px;
+        }
+        .content { display: none; }
+        .content.active { display: block; }
+        
+        /* Improved Converter Styles */
+        .converter {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .converter-row {
+            display: flex;
+            gap: 10px;
+            align-items: end;
+            flex-wrap: wrap;
+        }
+        
+        .form-group { 
+            flex: 1;
+            min-width: 120px;
+            display: flex; 
+            flex-direction: column; 
+        }
+        
+        label { 
+            margin-bottom: 5px; 
+            font-weight: 500; 
+            font-size: 14px;
+        }
+        
+        input, select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            width: 100%;
+        }
+        
+        .convert-btn {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            min-width: 120px;
+        }
+        
+        .arrow {
+            text-align: center;
+            padding: 10px 0;
+            font-size: 18px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9ff;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .favorite-btn {
+            margin-top: 15px;
+            padding: 8px 15px;
+            background: #ffd700;
+            color: #333;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        /* MODERN PROFILE STYLES */
+        .profile-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            color: white;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        
+        .profile-info {
+            background: #f8f9ff;
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .info-item:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .info-value {
+            color: #333;
+        }
+        
+        .badge {
+            background: #ffd700;
+            color: #333;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        
+        .profile-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .primary-btn {
+            background: #667eea;
+            color: white;
+        }
+        
+        .secondary-btn {
+            background: #f8f9ff;
+            color: #667eea;
+            border: 1px solid #667eea;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        /* Favorites & History */
+        .favorites-grid, .history-list {
+            display: grid;
+            gap: 10px;
+        }
+        .fav-item, .history-item {
+            background: #f8f9ff;
+            padding: 12px;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+            font-size: 14px;
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .header { padding: 10px 15px; }
+            .logo { font-size: 18px; }
+            .user-menu { font-size: 12px; gap: 10px; }
+            .logout-btn { padding: 5px 10px; font-size: 11px; }
+            
+            .container { margin: 10px auto; padding: 0 10px; }
+            .tab { padding: 10px 15px; font-size: 12px; }
+            .tab-content { padding: 15px; }
+            
+            .converter-row { flex-direction: column; }
+            .form-group { min-width: 100%; }
+            .arrow { padding: 5px 0; }
+            
+            .profile-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .profile-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">💱 CurrencyPro</div>
+        <div class="user-menu">
+            <span id="user-name">Welcome, User</span>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('converter')">Converter</div>
+            <div class="tab" onclick="showTab('favorites')">Favorites</div>
+            <div class="tab" onclick="showTab('history')">History</div>
+            <div class="tab" onclick="showTab('profile')">Profile</div>
+        </div>
+        
+        <div class="tab-content">
+            <!-- Converter Tab -->
+            <div id="converter-tab" class="content active">
+                <h2 style="text-align: center; margin-bottom: 20px;">Currency Converter</h2>
+                <div class="converter">
+                    <div class="form-group">
+                        <label>Amount</label>
+                        <input type="number" id="amount" value="1" min="0">
+                    </div>
+                    
+                    <div class="converter-row">
+                        <div class="form-group">
+                            <label>From Currency</label>
+                            <select id="from-currency">
+                                <option value="USD">USD - US Dollar</option>
+                                <option value="EUR">EUR - Euro</option>
+                                <option value="GBP">GBP - British Pound</option>
+                                <option value="JPY">JPY - Japanese Yen</option>
+                            </select>
+                        </div>
+                        
+                        <div class="arrow">→</div>
+                        
+                        <div class="form-group">
+                            <label>To Currency</label>
+                            <select id="to-currency">
+                                <option value="EUR">EUR - Euro</option>
+                                <option value="USD">USD - US Dollar</option>
+                                <option value="GBP">GBP - British Pound</option>
+                                <option value="JPY">JPY - Japanese Yen</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <button class="convert-btn" onclick="convertCurrency()">Convert</button>
+                    
+                    <div class="result" id="conversion-result"></div>
+                    
+                    <button class="favorite-btn" onclick="addToFavorites()">★ Add to Favorites</button>
+                </div>
+            </div>
+            
+            <!-- Favorites Tab -->
+            <div id="favorites-tab" class="content">
+                <h2>Favorite Conversions</h2>
+                <div class="favorites-grid" id="favorites-list">
+                    <p>Your favorite conversions will appear here.</p>
+                </div>
+            </div>
+            
+            <!-- History Tab -->
+            <div id="history-tab" class="content">
+                <h2>Conversion History</h2>
+                <div class="history-list" id="history-list">
+                    <p>Your conversion history will appear here.</p>
+                </div>
+            </div>
+            
+            <!-- MODERN PROFILE TAB -->
+            <div id="profile-tab" class="content">
+                <div class="profile-header">
+                    <div class="profile-avatar" id="user-avatar">
+                        👤
+                    </div>
+                    <h2 id="profile-name">Loading...</h2>
+                    <p id="profile-email" style="color: #666; margin-bottom: 10px;">Loading...</p>
+                    <span class="badge" id="user-tier">Standard Member</span>
+                </div>
+                
+                <div class="profile-stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="total-conversions">0</div>
+                        <div class="stat-label">Total Conversions</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="favorites-count">0</div>
+                        <div class="stat-label">Favorites</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="member-days">1</div>
+                        <div class="stat-label">Member Days</div>
+                    </div>
+                </div>
+                
+                <div class="profile-info">
+                    <h3 style="margin-bottom: 15px; color: #667eea;">Account Information</h3>
+                    <div class="info-item">
+                        <span class="info-label">User ID</span>
+                        <span class="info-value" id="user-id">Loading...</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Email Verified</span>
+                        <span class="info-value">
+                            <span class="badge" id="verification-status">Pending</span>
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Member Since</span>
+                        <span class="info-value" id="member-since">Loading...</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Last Active</span>
+                        <span class="info-value" id="last-active">Just now</span>
+                    </div>
+                </div>
+                
+                <div class="profile-actions">
+                    <button class="action-btn primary-btn" onclick="editProfile()">✏️ Edit Profile</button>
+                    <button class="action-btn secondary-btn" onclick="changePassword()">🔒 Change Password</button>
+                    <button class="action-btn secondary-btn" onclick="exportData()">📤 Export Data</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:10000/api';
+        let token = localStorage.getItem('token');
+        
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+        
+        function showTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.content').forEach(content => content.classList.remove('active'));
+            
+            document.querySelector(`.tab:nth-child(${getTabIndex(tabName)})`).classList.add('active');
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+            
+            if (tabName === 'favorites') loadFavorites();
+            if (tabName === 'history') loadHistory();
+            if (tabName === 'profile') loadModernProfile();
+        }
+        
+        function getTabIndex(tabName) {
+            const tabs = ['converter', 'favorites', 'history', 'profile'];
+            return tabs.indexOf(tabName) + 1;
+        }
+        
+        async function convertCurrency() {
+            const amount = document.getElementById('amount').value;
+            const fromCurrency = document.getElementById('from-currency').value;
+            const toCurrency = document.getElementById('to-currency').value;
+            
+            try {
+                const response = await fetch(`${API_BASE}/convert?from=${fromCurrency}&to=${toCurrency}&amount=${amount}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('conversion-result').innerHTML = 
+                        `${data.amount} ${data.from} = ${data.result} ${data.to}`;
+                } else {
+                    document.getElementById('conversion-result').innerHTML = 'Conversion failed';
+                }
+            } catch (error) {
+                document.getElementById('conversion-result').innerHTML = 'Network error';
+            }
+        }
+        
+        function addToFavorites() {
+            const fromCurrency = document.getElementById('from-currency').value;
+            const toCurrency = document.getElementById('to-currency').value;
+            alert(`Added ${fromCurrency} to ${toCurrency} to favorites!`);
+        }
+        
+        function loadFavorites() {
+            document.getElementById('favorites-list').innerHTML = '<p>Your favorite conversions will appear here.</p>';
+        }
+        
+        function loadHistory() {
+            document.getElementById('history-list').innerHTML = '<p>Your conversion history will appear here.</p>';
+        }
+        
+        // MODERN PROFILE FUNCTIONS
+        async function loadModernProfile() {
+            try {
+                const response = await fetch(`${API_BASE}/auth/profile`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.ok) {
+                    const user = await response.json();
+                    
+                    // Update profile information
+                    document.getElementById('user-name').textContent = `Welcome, ${user.name}`;
+                    document.getElementById('profile-name').textContent = user.name;
+                    document.getElementById('profile-email').textContent = user.email;
+                    document.getElementById('user-id').textContent = user.id.substring(0, 8) + '...';
+                    
+                    // Create avatar from name initials
+                    const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                    document.getElementById('user-avatar').textContent = initials || '👤';
+                    
+                    // Calculate member days
+                    const memberSince = new Date(user.createdAt || new Date());
+                    const today = new Date();
+                    const memberDays = Math.floor((today - memberSince) / (1000 * 60 * 60 * 24)) + 1;
+                    document.getElementById('member-since').textContent = new Date(user.createdAt).toLocaleDateString();
+                    document.getElementById('member-days').textContent = memberDays;
+                    
+                    // Generate random stats (for demo - replace with real data later)
+                    document.getElementById('total-conversions').textContent = Math.floor(Math.random() * 50) + 10;
+                    document.getElementById('favorites-count').textContent = Math.floor(Math.random() * 10) + 1;
+                    
+                    // Set verification status
+                    document.getElementById('verification-status').textContent = 'Verified';
+                    document.getElementById('verification-status').style.background = '#4CAF50';
+                    document.getElementById('verification-status').style.color = 'white';
+                    
+                }
+            } catch (error) {
+                document.getElementById('profile-name').textContent = 'Error loading profile';
+            }
+        }
+        
+        function editProfile() {
+            alert('Edit profile feature coming soon!');
+        }
+        
+        function changePassword() {
+            alert('Change password feature coming soon!');
+        }
+        
+        function exportData() {
+            alert('Data export feature coming soon!');
+        }
+        
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.href = 'login.html';
+        }
+        
+        // Load profile on page load
+        loadModernProfile();
+    </script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!-- We'll just show the fixed JavaScript part -->
+<script>
+// FIXED PROFILE LOADING FUNCTION
+async function loadModernProfile() {
+    try {
+        console.log('Loading profile...');
+        const response = await fetch(`${API_BASE}/auth/profile`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        console.log('Response status:', response.status);
+        
+        if (response.ok) {
+            const user = await response.json();
+            console.log('User data received:', user);
+
+            // Update profile information - WITH PROPER ERROR HANDLING
+            document.getElementById('user-name').textContent = `Welcome, ${user.name || 'User'}`;
+            document.getElementById('profile-name').textContent = user.name || 'User';
+            document.getElementById('profile-email').textContent = user.email || 'No email';
+            
+            // FIX: Check if user.id exists before using substring
+            if (user.id) {
+                document.getElementById('user-id').textContent = user.id.substring(0, 8) + '...';
+            } else {
+                document.getElementById('user-id').textContent = 'Unknown';
+            }
+
+            // Create avatar from name initials
+            const initials = user.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase() : 'U';
+            document.getElementById('user-avatar').textContent = initials || '👤';
+
+            // FIX: Calculate member days with proper date handling
+            if (user.createdAt) {
+                const memberSince = new Date(user.createdAt);
+                const today = new Date();
+                const memberDays = Math.floor((today - memberSince) / (1000 * 60 * 60 * 24)) + 1;
+                document.getElementById('member-since').textContent = memberSince.toLocaleDateString();
+                document.getElementById('member-days').textContent = memberDays;
+            } else {
+                document.getElementById('member-since').textContent = 'Unknown';
+                document.getElementById('member-days').textContent = '1';
+            }
+
+            // Generate random stats (for demo)
+            document.getElementById('total-conversions').textContent = Math.floor(Math.random() * 50) + 10;
+            document.getElementById('favorites-count').textContent = Math.floor(Math.random() * 10) + 1;
+            
+            // Set verification status
+            document.getElementById('verification-status').textContent = 'Verified';
+            document.getElementById('verification-status').style.background = '#4CAF50';
+            document.getElementById('verification-status').style.color = 'white';
+            
+        } else {
+            const error = await response.json();
+            console.error('Profile error:', error);
+            document.getElementById('profile-name').textContent = 'Error: ' + (error.error || 'Unknown error');
+        }
+    } catch (error) {
+        console.error('Profile load error:', error);
+        document.getElementById('profile-name').textContent = 'Network error';
+    }
+}
+</script>

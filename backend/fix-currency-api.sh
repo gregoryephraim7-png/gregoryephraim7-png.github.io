@@ -1,0 +1,91 @@
+#!/bin/bash
+
+# Find the convert endpoint
+START_LINE=$(grep -n "app.get.*/api/convert" server-with-authz.js | cut -d: -f1)
+echo "Convert endpoint starts at line: $START_LINE"
+
+# Create the updated file carefully
+head -n $((START_LINE - 1)) server-with-authz.js > server-fixed.js
+
+# Add the new convert endpoint
+cat << 'NEWCODE' >> server-fixed.js
+app.get('/api/convert', async (req, res) => {
+    const { from, to, amount } = req.query;
+    
+    if (!from || !to || !amount) {
+        return res.status(400).json({ error: 'Missing required parameters: from, to, amount' });
+    }
+
+    try {
+        const numericAmount = parseFloat(amount);
+        if (isNaN(numericAmount) || numericAmount <= 0) {
+            return res.status(400).json({ error: 'Amount must be a positive number' });
+        }
+
+        // Use FreeCurrencyAPI (completely free, supports 339 currencies including NGN)
+        const response = await fetch(`https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/${from.toLowerCase()}.json`);
+        
+        if (!response.ok) {
+            throw new Error(`API responded with status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        
+        const fromKey = from.toLowerCase();
+        const toKey = to.toLowerCase();
+        
+        if (!data[fromKey] || !data[fromKey][toKey]) {
+            return res.status(400).json({ error: `Currency pair ${from}-${to} not supported` });
+        }
+
+        const rate = data[fromKey][toKey];
+        const convertedAmount = numericAmount * rate;
+
+        // Log conversion activity
+        if (req.user && req.user.userId) {
+            logActivity(req.user.userId, 'CURRENCY_CONVERSION', {
+                from: from.toUpperCase(),
+                to: to.toUpperCase(), 
+                amount: numericAmount, 
+                convertedAmount: convertedAmount.toFixed(4),
+                rate: rate.toFixed(6)
+            });
+        }
+
+        const conversionData = {
+            from: from.toUpperCase(),
+            to: to.toUpperCase(),
+            amount: numericAmount,
+            rate: parseFloat(rate.toFixed(6)),
+            result: parseFloat(convertedAmount.toFixed(4)),
+            timestamp: new Date().toISOString(),
+            apiSource: 'FreeCurrencyAPI.com'
+        };
+
+        conversionHistory.push(conversionData);
+        if (conversionHistory.length > 1000) conversionHistory.shift();
+
+        res.json(conversionData);
+
+    } catch (error) {
+        console.error('Currency conversion error:', error);
+        res.status(500).json({ 
+            error: 'Currency conversion service unavailable',
+            details: error.message 
+        });
+    }
+});
+NEWCODE
+
+# Find where to continue from
+TAIL_START=$(grep -n -A 100 "app.get.*/api/convert" server-with-authz.js | grep -E "^[0-9]+-app\." | head -1 | cut -d- -f1)
+if [ -n "$TAIL_START" ]; then
+    tail -n +$TAIL_START server-with-authz.js >> server-fixed.js
+else
+    # Fallback: skip 30 lines from convert endpoint
+    tail -n +$((START_LINE + 30)) server-with-authz.js >> server-fixed.js
+fi
+
+# Replace the file
+mv server-fixed.js server-with-authz.js
+echo "✅ Backend updated successfully!"

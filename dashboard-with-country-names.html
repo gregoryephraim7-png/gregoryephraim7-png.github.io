@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Currency Converter - Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .converter-card {
+            grid-column: 1 / -1;
+        }
+
+        .converter-form {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr auto;
+            gap: 15px;
+            align-items: end;
+        }
+
+        @media (max-width: 768px) {
+            .converter-form {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .form-control {
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .swap-btn {
+            background: #f8f9fa;
+            color: #333;
+            border: 2px solid #e1e5e9;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .result h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .conversion-rate {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .admin-section {
+            margin-top: 30px;
+        }
+
+        .admin-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .user-list {
+            margin-top: 20px;
+        }
+
+        .user-item {
+            padding: 15px;
+            border: 1px solid #e1e5e9;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+
+        .logout-btn {
+            background: #dc3545;
+            margin-left: auto;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .error {
+            color: #dc3545;
+            background: #f8d7da;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+
+        .success {
+            color: #155724;
+            background: #d4edda;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌍 Currency Converter</h1>
+            <p>Convert between 339 currencies with real-time exchange rates</p>
+        </div>
+
+        <div class="dashboard">
+            <div class="card converter-card">
+                <h2>Currency Converter</h2>
+                <form id="conversionForm" class="converter-form">
+                    <div class="form-group">
+                        <label for="amount">Amount:</label>
+                        <input type="number" id="amount" class="form-control" placeholder="Enter amount" step="0.01" min="0" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="fromCurrency">From Currency:</label>
+                        <select id="fromCurrency" class="form-control" required>
+                            <!-- Populated by JavaScript -->
+                        </select>
+                    </div>
+
+                    <button type="button" id="swapCurrencies" class="btn swap-btn">⇄ Swap</button>
+                    
+                    <div class="form-group">
+                        <label for="toCurrency">To Currency:</label>
+                        <select id="toCurrency" class="form-control" required>
+                            <!-- Populated by JavaScript -->
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn">Convert</button>
+                </form>
+
+                <div id="conversionResult" class="result hidden">
+                    <h3>Conversion Result</h3>
+                    <div id="resultText"></div>
+                    <div id="conversionRate" class="conversion-rate"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>User Profile</h2>
+                <div id="userInfo">
+                    <p>Welcome, <span id="username">Guest</span>!</p>
+                    <button id="logoutBtn" class="btn logout-btn">Logout</button>
+                </div>
+            </div>
+
+            <div class="card admin-section hidden" id="adminSection">
+                <h2>Admin Dashboard</h2>
+                <div class="admin-controls">
+                    <button id="refreshRatesBtn" class="btn">Refresh Exchange Rates</button>
+                    <button id="viewUsersBtn" class="btn">View All Users</button>
+                </div>
+                <div id="usersList" class="user-list hidden"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include the currency mapping -->
+    <script src="currency-mapping.js"></script>
+    
+    <script>
+        const API_BASE_URL = 'https://currency-converter-3u2v.onrender.com'; // Update with your Render URL
+        
+        // DOM Elements
+        const conversionForm = document.getElementById('conversionForm');
+        const amountInput = document.getElementById('amount');
+        const fromCurrencySelect = document.getElementById('fromCurrency');
+        const toCurrencySelect = document.getElementById('toCurrency');
+        const swapButton = document.getElementById('swapCurrencies');
+        const conversionResult = document.getElementById('conversionResult');
+        const resultText = document.getElementById('resultText');
+        const conversionRate = document.getElementById('conversionRate');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const adminSection = document.getElementById('adminSection');
+        const refreshRatesBtn = document.getElementById('refreshRatesBtn');
+        const viewUsersBtn = document.getElementById('viewUsersBtn');
+        const usersList = document.getElementById('usersList');
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            populateCurrencyDropdowns();
+            checkAuthStatus();
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            conversionForm.addEventListener('submit', handleConversion);
+            swapButton.addEventListener('click', swapCurrencies);
+            logoutBtn.addEventListener('click', handleLogout);
+            refreshRatesBtn.addEventListener('click', refreshExchangeRates);
+            viewUsersBtn.addEventListener('click', viewAllUsers);
+        }
+
+        async function handleConversion(e) {
+            e.preventDefault();
+            
+            const amount = parseFloat(amountInput.value);
+            const fromCurrency = fromCurrencySelect.value;
+            const toCurrency = toCurrencySelect.value;
+
+            if (!amount || amount <= 0) {
+                showError('Please enter a valid amount');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/convert`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({
+                        amount: amount,
+                        from: fromCurrency,
+                        to: toCurrency
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    displayConversionResult(amount, fromCurrency, toCurrency, data);
+                } else {
+                    showError(data.error || 'Conversion failed');
+                }
+            } catch (error) {
+                showError('Network error. Please try again.');
+            }
+        }
+
+        function displayConversionResult(amount, fromCurrency, toCurrency, data) {
+            const fromName = getCurrencyDisplayName(fromCurrency);
+            const toName = getCurrencyDisplayName(toCurrency);
+            
+            resultText.innerHTML = `
+                ${amount.toLocaleString()} ${fromName} = 
+                <strong>${data.convertedAmount.toLocaleString()} ${toName}</strong>
+            `;
+            
+            conversionRate.textContent = `1 ${fromCurrency} = ${data.rate} ${toCurrency}`;
+            conversionResult.classList.remove('hidden');
+        }
+
+        function swapCurrencies() {
+            const fromValue = fromCurrencySelect.value;
+            const toValue = toCurrencySelect.value;
+            
+            fromCurrencySelect.value = toValue;
+            toCurrencySelect.value = fromValue;
+        }
+
+        async function checkAuthStatus() {
+            const token = localStorage.getItem('token');
+            const username = localStorage.getItem('username');
+            const isAdmin = localStorage.getItem('isAdmin') === 'true';
+
+            if (token && username) {
+                document.getElementById('username').textContent = username;
+                if (isAdmin) {
+                    adminSection.classList.remove('hidden');
+                }
+            } else {
+                window.location.href = 'index.html';
+            }
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('username');
+            localStorage.removeItem('isAdmin');
+            window.location.href = 'index.html';
+        }
+
+        async function refreshExchangeRates() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/refresh-rates`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showSuccess('Exchange rates refreshed successfully');
+                } else {
+                    showError(data.error || 'Failed to refresh rates');
+                }
+            } catch (error) {
+                showError('Network error. Please try again.');
+            }
+        }
+
+        async function viewAllUsers() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/users`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    displayUsersList(data.users);
+                } else {
+                    showError(data.error || 'Failed to fetch users');
+                }
+            } catch (error) {
+                showError('Network error. Please try again.');
+            }
+        }
+
+        function displayUsersList(users) {
+            usersList.innerHTML = '';
+            usersList.classList.remove('hidden');
+            
+            users.forEach(user => {
+                const userElement = document.createElement('div');
+                userElement.className = 'user-item';
+                userElement.innerHTML = `
+                    <strong>${user.username}</strong>
+                    <span>Role: ${user.isAdmin ? 'Admin' : 'User'}</span>
+                    <span>Joined: ${new Date(user.createdAt).toLocaleDateString()}</span>
+                `;
+                usersList.appendChild(userElement);
+            });
+        }
+
+        function showError(message) {
+            const existingError = document.querySelector('.error');
+            if (existingError) {
+                existingError.remove();
+            }
+            
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error';
+            errorDiv.textContent = message;
+            conversionForm.insertBefore(errorDiv, conversionForm.firstChild);
+            
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            const existingSuccess = document.querySelector('.success');
+            if (existingSuccess) {
+                existingSuccess.remove();
+            }
+            
+            const successDiv = document.createElement('div');
+            successDiv.className = 'success';
+            successDiv.textContent = message;
+            conversionForm.insertBefore(successDiv, conversionForm.firstChild);
+            
+            setTimeout(() => {
+                successDiv.remove();
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

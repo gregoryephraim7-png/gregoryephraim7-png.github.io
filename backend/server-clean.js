@@ -251,6 +251,7 @@ app.get('/api/health', (req, res) => {
     });
 });
 
+// Simple fix for FreeCurrencyAPI - use lowercase for API calls
 app.get('/api/convert', async (req, res) => {
     const { from, to, amount } = req.query;
     
@@ -264,24 +265,18 @@ app.get('/api/convert', async (req, res) => {
             return res.status(400).json({ error: 'Amount must be positive' });
         }
 
-        // USE FreeCurrencyAPI - supports 339 currencies
+        // Use lowercase for API call
         const fromLower = from.toLowerCase();
         const toLower = to.toLowerCase();
         
         const response = await fetch(`https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/${fromLower}.json`);
         
-        if (!response.ok) {
-            throw new Error(`FreeCurrencyAPI error: ${response.status}`);
-        }
+        if (!response.ok) throw new Error('API request failed');
 
         const data = await response.json();
         
-        if (!data[fromLower]) {
-            throw new Error(`Currency ${from} not supported`);
-        }
-        
-        if (!data[fromLower][toLower]) {
-            throw new Error(`Currency ${to} not available for ${from}`);
+        if (!data[fromLower] || !data[fromLower][toLower]) {
+            return res.status(400).json({ error: 'Currency pair not supported' });
         }
 
         const rate = data[fromLower][toLower];
@@ -297,53 +292,13 @@ app.get('/api/convert', async (req, res) => {
             apiSource: 'FreeCurrencyAPI.com'
         };
 
-        if (typeof conversionHistory !== 'undefined') {
-            conversionHistory.push(conversionData);
-            if (conversionHistory.length > 1000) conversionHistory.shift();
-        }
+        conversionHistory.push(conversionData);
+        if (conversionHistory.length > 1000) conversionHistory.shift();
 
         res.json(conversionData);
 
     } catch (error) {
-        console.error('Conversion error:', error.message);
-        res.status(500).json({ 
-            error: 'Conversion failed',
-            details: error.message
-        });
+        console.error('Conversion error:', error);
+        res.status(500).json({ error: 'Conversion failed' });
     }
-});
-app.get('/api/auth/profile', authenticateToken, (req, res) => {
-    const user = users.find(u => u.id === req.user.userId);
-    if (!user) {
-        return res.status(404).json({ error: 'User not found' });
-    }
-
-    const userConversions = conversionHistory.length;
-    const userFavorites = favorites.filter(f => f.userId === user.id).length;
-    const memberSince = new Date(user.createdAt);
-    const memberDays = Math.floor((new Date() - memberSince) / (1000 * 60 * 60 * 24));
-
-    res.json({ 
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        permissions: user.permissions,
-        isVerified: user.isVerified,
-        createdAt: user.createdAt,
-        lastLogin: user.lastLogin,
-        statistics: {
-            totalConversions: userConversions,
-            favoritesCount: userFavorites,
-            memberDays: memberDays
-        }
-    });
-});
-
-app.listen(PORT, () => {
-    console.log(`🚀 Fixed Registration Server running on port ${PORT}`);
-    console.log(`🔐 Registration: Fixed with better error handling`);
-    console.log(`📧 Email validation: Enabled`);
-    console.log(`🔒 Password validation: Enabled`);
-    console.log(`👥 Users: ${users.length} users loaded`);
 });

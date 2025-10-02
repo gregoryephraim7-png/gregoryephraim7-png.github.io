@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Currency Converter - No Login</title>
+    <style>
+        body { font-family: Arial; max-width: 600px; margin: 50px auto; padding: 20px; text-align: center; }
+        .box { background: #f0f8ff; padding: 30px; border-radius: 10px; margin: 20px 0; }
+        input, select, button { padding: 12px; margin: 8px; font-size: 16px; width: 80%; }
+        button { background: #28a745; color: white; border: none; cursor: pointer; }
+        .result { margin-top: 20px; padding: 15px; background: #d4edda; border-radius: 5px; }
+        .warning { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>🌍 Currency Converter</h1>
+    <p class="warning">✅ NO LOGIN REQUIRED - USE IMMEDIATELY</p>
+    <p>If you see a login page, you're on the wrong URL!</p>
+    
+    <div class="box">
+        <h3>Convert Currencies</h3>
+        <input type="number" id="amount" value="100" placeholder="Amount">
+        <br>
+        <select id="from">
+            <option value="USD">United States (USD)</option>
+            <option value="NGN">Nigeria (NGN)</option>
+            <option value="EUR">European Union (EUR)</option>
+            <option value="GBP">United Kingdom (GBP)</option>
+        </select>
+        <br>
+        <select id="to">
+            <option value="NGN">Nigeria (NGN)</option>
+            <option value="USD">United States (USD)</option>
+            <option value="EUR">European Union (EUR)</option>
+            <option value="GBP">United Kingdom (GBP)</option>
+        </select>
+        <br>
+        <button onclick="convert()">Convert Now</button>
+    </div>
+    
+    <div id="result" class="result" style="display:none">
+        <h3>Result:</h3>
+        <div id="resultText"></div>
+    </div>
+
+    <script>
+        async function convert() {
+            const amount = document.getElementById('amount').value;
+            const from = document.getElementById('from').value;
+            const to = document.getElementById('to').value;
+
+            const response = await fetch('/convert', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ amount: parseFloat(amount), from, to })
+            });
+
+            const data = await response.json();
+            
+            document.getElementById('resultText').innerHTML = `
+                <strong>${amount} ${from}</strong> = 
+                <strong style="color: #155724;">${data.convertedAmount.toFixed(2)} ${to}</strong>
+                <br>Rate: 1 ${from} = ${data.rate.toFixed(4)} ${to}
+            `;
+            document.getElementById('result').style.display = 'block';
+        }
+
+        // Auto-convert on page load
+        setTimeout(convert, 1000);
+    </script>
+</body>
+</html>

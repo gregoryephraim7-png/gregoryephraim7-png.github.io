@@ -1,0 +1,21 @@
+<script>
+// Simple debug script to test the profile API
+const token = localStorage.getItem('token');
+console.log('Token:', token);
+
+fetch('https://currency-converter-api-egqi.onrender.com/api/auth/profile', {
+    headers: { 'Authorization': `Bearer ${token}` }
+})
+.then(response => {
+    console.log('Response status:', response.status);
+    return response.json();
+})
+.then(data => {
+    console.log('Profile API response:', data);
+    document.body.innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+})
+.catch(error => {
+    console.error('Error:', error);
+    document.body.innerHTML = 'Error: ' + error.message;
+});
+</script>

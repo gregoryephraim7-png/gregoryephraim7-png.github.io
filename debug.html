@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Profile API</title>
+</head>
+<body>
+    <h2>Profile API Debug</h2>
+    <div id="result">Testing...</div>
+    
+    <script>
+        const token = localStorage.getItem('token');
+        const resultDiv = document.getElementById('result');
+        
+        resultDiv.innerHTML = '<p>Token: ' + (token ? 'Present' : 'Missing') + '</p>';
+        
+        if (token) {
+            fetch('https://currency-converter-api-egqi.onrender.com/api/auth/profile', {
+                headers: { 'Authorization': 'Bearer ' + token }
+            })
+            .then(response => {
+                resultDiv.innerHTML += '<p>Status: ' + response.status + '</p>';
+                return response.json();
+            })
+            .then(data => {
+                resultDiv.innerHTML += '<h3>API Response:</h3>';
+                resultDiv.innerHTML += '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+            })
+            .catch(error => {
+                resultDiv.innerHTML += '<p>Error: ' + error.message + '</p>';
+            });
+        } else {
+            resultDiv.innerHTML += '<p>No token found. Please login first.</p>';
+        }
+    </script>
+</body>
+</html>

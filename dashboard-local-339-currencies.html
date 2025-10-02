@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Currency Converter - Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f6fa;
+            color: #333;
+        }
+        .header {
+            background: white;
+            padding: 15px 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo { font-size: 20px; font-weight: bold; color: #667eea; }
+        .user-menu { display: flex; align-items: center; gap: 15px; font-size: 14px; }
+        .logout-btn { 
+            padding: 6px 12px; 
+            background: #e74c3c; 
+            color: white; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            font-size: 12px;
+        }
+        
+        .container {
+            max-width: 100%;
+            margin: 20px auto;
+            padding: 0 15px;
+        }
+        
+        .tabs {
+            display: flex;
+            background: white;
+            border-radius: 10px 10px 0 0;
+            overflow-x: auto;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .tab {
+            padding: 12px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            white-space: nowrap;
+            font-size: 14px;
+        }
+        .tab.active {
+            border-bottom: 3px solid #667eea;
+            color: #667eea;
+            background: #f8f9ff;
+        }
+        
+        .tab-content {
+            background: white;
+            padding: 20px;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            min-height: 400px;
+        }
+        .content { display: none; }
+        .content.active { display: block; }
+        
+        /* Improved Converter Styles */
+        .converter {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .converter-row {
+            display: flex;
+            gap: 10px;
+            align-items: end;
+            flex-wrap: wrap;
+        }
+        
+        .form-group { 
+            flex: 1;
+            min-width: 120px;
+            display: flex; 
+            flex-direction: column; 
+        }
+        
+        label { 
+            margin-bottom: 5px; 
+            font-weight: 500; 
+            font-size: 14px;
+        }
+        
+        input, select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            width: 100%;
+        }
+        
+        .convert-btn {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            min-width: 120px;
+        }
+        
+        .arrow {
+            text-align: center;
+            padding: 10px 0;
+            font-size: 18px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9ff;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .favorite-btn {
+            margin-top: 15px;
+            padding: 8px 15px;
+            background: #ffd700;
+            color: #333;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        /* MODERN PROFILE STYLES */
+        .profile-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            color: white;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        
+        .profile-info {
+            background: #f8f9ff;
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .info-item:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .info-value {
+            color: #333;
+        }
+        
+        .badge {
+            background: #ffd700;
+            color: #333;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        
+        .profile-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .primary-btn {
+            background: #667eea;
+            color: white;
+        }
+        
+        .secondary-btn {
+            background: #f8f9ff;
+            color: #667eea;
+            border: 1px solid #667eea;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        /* Favorites & History */
+        .favorites-grid, .history-list {
+            display: grid;
+            gap: 10px;
+        }
+        .fav-item, .history-item {
+            background: #f8f9ff;
+            padding: 12px;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+            font-size: 14px;
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .header { padding: 10px 15px; }
+            .logo { font-size: 18px; }
+            .user-menu { font-size: 12px; gap: 10px; }
+            .logout-btn { padding: 5px 10px; font-size: 11px; }
+            
+            .container { margin: 10px auto; padding: 0 10px; }
+            .tab { padding: 10px 15px; font-size: 12px; }
+            .tab-content { padding: 15px; }
+            
+            .converter-row { flex-direction: column; }
+            .form-group { min-width: 100%; }
+            .arrow { padding: 5px 0; }
+            
+            .profile-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .profile-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">💱 CurrencyPro</div>
+        <div class="user-menu">
+            <span id="user-name">Welcome, User</span>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('converter')">Converter</div>
+            <div class="tab" onclick="showTab('favorites')">Favorites</div>
+            <div class="tab" onclick="showTab('history')">History</div>
+            <div class="tab" onclick="showTab('profile')">Profile</div>
+        </div>
+        
+        <div class="tab-content">
+            <!-- Converter Tab -->
+            <div id="converter-tab" class="content active">
+                <h2 style="text-align: center; margin-bottom: 20px;">Currency Converter</h2>
+                <div class="converter">
+                    <div class="form-group">
+                        <label>Amount</label>
+                        <input type="number" id="amount" value="1" min="0">
+                    </div>
+                    
+                    <div class="converter-row">
+                        <div class="form-group">
+                            <label>From Currency</label>
+                            <select id="from-currency">
+Found 339 currencies
+<option value="1INCH">1INCH</option>
+<option value="AAVE">AAVE</option>
+<option value="ADA">ADA</option>
+<option value="AED">AED</option>
+<option value="AFN">AFN</option>
+<option value="AGIX">AGIX</option>
+<option value="AKT">AKT</option>
+<option value="ALGO">ALGO</option>
+<option value="ALL">ALL</option>
+<option value="AMD">AMD</option>
+<option value="AMP">AMP</option>
+<option value="ANG">ANG</option>
+<option value="AOA">AOA</option>
+<option value="APE">APE</option>
+<option value="APT">APT</option>
+<option value="AR">AR</option>
+<option value="ARB">ARB</option>
+<option value="ARS">ARS</option>
+<option value="ATOM">ATOM</option>
+<option value="ATS">ATS</option>
+<option value="AUD">AUD</option>
+<option value="AVAX">AVAX</option>
+<option value="AWG">AWG</option>
+<option value="AXS">AXS</option>
+<option value="AZM">AZM</option>
+<option value="AZN">AZN</option>
+<option value="BAKE">BAKE</option>
+<option value="BAM">BAM</option>
+<option value="BAT">BAT</option>
+<option value="BBD">BBD</option>
+<option value="BCH">BCH</option>
+<option value="BDT">BDT</option>
+<option value="BEF">BEF</option>
+<option value="BGN">BGN</option>
+<option value="BHD">BHD</option>
+<option value="BIF">BIF</option>
+<option value="BMD">BMD</option>
+<option value="BNB">BNB</option>
+<option value="BND">BND</option>
+<option value="BOB">BOB</option>
+<option value="BRL">BRL</option>
+<option value="BSD">BSD</option>
+<option value="BSV">BSV</option>
+<option value="BSW">BSW</option>
+<option value="BTC">BTC</option>
+<option value="BTG">BTG</option>
+<option value="BTN">BTN</option>
+<option value="BTT">BTT</option>
+<option value="BUSD">BUSD</option>
+<option value="BWP">BWP</option>
+<option value="BYN">BYN</option>
+<option value="BYR">BYR</option>
+<option value="BZD">BZD</option>
+<option value="CAD">CAD</option>
+<option value="CAKE">CAKE</option>
+<option value="CDF">CDF</option>
+<option value="CELO">CELO</option>
+<option value="CFX">CFX</option>
+<option value="CHF">CHF</option>
+<option value="CHZ">CHZ</option>
+<option value="CLP">CLP</option>
+<option value="CNH">CNH</option>
+<option value="CNY">CNY</option>
+<option value="COMP">COMP</option>
+<option value="COP">COP</option>
+<option value="CRC">CRC</option>
+<option value="CRO">CRO</option>
+<option value="CRV">CRV</option>
+<option value="CSPR">CSPR</option>
+<option value="CUC">CUC</option>
+<option value="CUP">CUP</option>
+<option value="CVE">CVE</option>
+<option value="CVX">CVX</option>
+<option value="CYP">CYP</option>
+<option value="CZK">CZK</option>
+<option value="DAI">DAI</option>
+<option value="DASH">DASH</option>
+<option value="DCR">DCR</option>
+<option value="DEM">DEM</option>
+<option value="DFI">DFI</option>
+<option value="DJF">DJF</option>
+<option value="DKK">DKK</option>
+<option value="DOGE">DOGE</option>
+<option value="DOP">DOP</option>
+<option value="DOT">DOT</option>
+<option value="DYDX">DYDX</option>
+<option value="DZD">DZD</option>
+<option value="EEK">EEK</option>
+<option value="EGLD">EGLD</option>
+<option value="EGP">EGP</option>
+<option value="ENJ">ENJ</option>
+<option value="EOS">EOS</option>
+<option value="ERN">ERN</option>
+<option value="ESP">ESP</option>
+<option value="ETB">ETB</option>
+<option value="ETC">ETC</option>
+<option value="ETH">ETH</option>
+<option value="EUR">EUR</option>
+<option value="EURC">EURC</option>
+<option value="FEI">FEI</option>
+<option value="FIL">FIL</option>
+<option value="FIM">FIM</option>
+<option value="FJD">FJD</option>
+<option value="FKP">FKP</option>
+<option value="FLOW">FLOW</option>
+<option value="FLR">FLR</option>
+<option value="FRAX">FRAX</option>
+<option value="FRF">FRF</option>
+<option value="FTT">FTT</option>
+<option value="GALA">GALA</option>
+<option value="GBP">GBP</option>
+<option value="GEL">GEL</option>
+<option value="GGP">GGP</option>
+<option value="GHC">GHC</option>
+<option value="GHS">GHS</option>
+<option value="GIP">GIP</option>
+<option value="GMD">GMD</option>
+<option value="GMX">GMX</option>
+<option value="GNF">GNF</option>
+<option value="GNO">GNO</option>
+<option value="GRD">GRD</option>
+<option value="GRT">GRT</option>
+<option value="GT">GT</option>
+<option value="GTQ">GTQ</option>
+<option value="GUSD">GUSD</option>
+<option value="GYD">GYD</option>
+<option value="HBAR">HBAR</option>
+<option value="HKD">HKD</option>
+<option value="HNL">HNL</option>
+<option value="HNT">HNT</option>
+<option value="HOT">HOT</option>
+<option value="HRK">HRK</option>
+<option value="HT">HT</option>
+<option value="HTG">HTG</option>
+<option value="HUF">HUF</option>
+<option value="ICP">ICP</option>
+<option value="IDR">IDR</option>
+<option value="IEP">IEP</option>
+<option value="ILS">ILS</option>
+<option value="IMP">IMP</option>
+<option value="IMX">IMX</option>
+<option value="INJ">INJ</option>
+<option value="INR">INR</option>
+<option value="IQD">IQD</option>
+<option value="IRR">IRR</option>
+<option value="ISK">ISK</option>
+<option value="ITL">ITL</option>
+<option value="JEP">JEP</option>
+<option value="JMD">JMD</option>
+<option value="JOD">JOD</option>
+<option value="JPY">JPY</option>
+<option value="KAS">KAS</option>
+<option value="KAVA">KAVA</option>
+<option value="KCS">KCS</option>
+<option value="KDA">KDA</option>
+<option value="KES">KES</option>
+<option value="KGS">KGS</option>
+<option value="KHR">KHR</option>
+<option value="KLAY">KLAY</option>
+<option value="KMF">KMF</option>
+<option value="KNC">KNC</option>
+<option value="KPW">KPW</option>
+<option value="KRW">KRW</option>
+<option value="KSM">KSM</option>
+<option value="KWD">KWD</option>
+<option value="KYD">KYD</option>
+<option value="KZT">KZT</option>
+<option value="LAK">LAK</option>
+<option value="LBP">LBP</option>
+<option value="LDO">LDO</option>
+<option value="LEO">LEO</option>
+<option value="LINK">LINK</option>
+<option value="LKR">LKR</option>
+<option value="LRC">LRC</option>
+<option value="LRD">LRD</option>
+<option value="LSL">LSL</option>
+<option value="LTC">LTC</option>
+<option value="LTL">LTL</option>
+<option value="LUF">LUF</option>
+<option value="LUNA">LUNA</option>
+<option value="LUNC">LUNC</option>
+<option value="LVL">LVL</option>
+<option value="LYD">LYD</option>
+<option value="MAD">MAD</option>
+<option value="MANA">MANA</option>
+<option value="MBX">MBX</option>
+<option value="MDL">MDL</option>
+<option value="MGA">MGA</option>
+<option value="MGF">MGF</option>
+<option value="MINA">MINA</option>
+<option value="MKD">MKD</option>
+<option value="MKR">MKR</option>
+<option value="MMK">MMK</option>
+<option value="MNT">MNT</option>
+<option value="MOP">MOP</option>
+<option value="MRO">MRO</option>
+<option value="MRU">MRU</option>
+<option value="MTL">MTL</option>
+<option value="MUR">MUR</option>
+<option value="MVR">MVR</option>
+<option value="MWK">MWK</option>
+<option value="MXN">MXN</option>
+<option value="MXV">MXV</option>
+<option value="MYR">MYR</option>
+<option value="MZM">MZM</option>
+<option value="MZN">MZN</option>
+<option value="NAD">NAD</option>
+<option value="NEAR">NEAR</option>
+<option value="NEO">NEO</option>
+<option value="NEXO">NEXO</option>
+<option value="NFT">NFT</option>
+<option value="NGN">NGN</option>
+<option value="NIO">NIO</option>
+<option value="NLG">NLG</option>
+<option value="NOK">NOK</option>
+<option value="NPR">NPR</option>
+<option value="NZD">NZD</option>
+<option value="OKB">OKB</option>
+<option value="OMR">OMR</option>
+<option value="ONE">ONE</option>
+<option value="OP">OP</option>
+<option value="ORDI">ORDI</option>
+<option value="PAB">PAB</option>
+<option value="PAXG">PAXG</option>
+<option value="PEN">PEN</option>
+<option value="PEPE">PEPE</option>
+<option value="PGK">PGK</option>
+<option value="PHP">PHP</option>
+<option value="PKR">PKR</option>
+<option value="PLN">PLN</option>
+<option value="POL">POL</option>
+<option value="PTE">PTE</option>
+<option value="PYG">PYG</option>
+<option value="QAR">QAR</option>
+<option value="QNT">QNT</option>
+<option value="QTUM">QTUM</option>
+<option value="ROL">ROL</option>
+<option value="RON">RON</option>
+<option value="RPL">RPL</option>
+<option value="RSD">RSD</option>
+<option value="RUB">RUB</option>
+<option value="RUNE">RUNE</option>
+<option value="RVN">RVN</option>
+<option value="RWF">RWF</option>
+<option value="SAND">SAND</option>
+<option value="SAR">SAR</option>
+<option value="SBD">SBD</option>
+<option value="SCR">SCR</option>
+<option value="SDD">SDD</option>
+<option value="SDG">SDG</option>
+<option value="SEK">SEK</option>
+<option value="SGD">SGD</option>
+<option value="SHIB">SHIB</option>
+<option value="SHP">SHP</option>
+<option value="SIT">SIT</option>
+<option value="SKK">SKK</option>
+<option value="SLE">SLE</option>
+<option value="SLL">SLL</option>
+<option value="SNX">SNX</option>
+<option value="SOL">SOL</option>
+<option value="SOS">SOS</option>
+<option value="SPL">SPL</option>
+<option value="SRD">SRD</option>
+<option value="SRG">SRG</option>
+<option value="STD">STD</option>
+<option value="STN">STN</option>
+<option value="STX">STX</option>
+<option value="SUI">SUI</option>
+<option value="SVC">SVC</option>
+<option value="SYP">SYP</option>
+<option value="SZL">SZL</option>
+<option value="THB">THB</option>
+<option value="THETA">THETA</option>
+<option value="TJS">TJS</option>
+<option value="TMM">TMM</option>
+<option value="TMT">TMT</option>
+<option value="TND">TND</option>
+<option value="TON">TON</option>
+<option value="TOP">TOP</option>
+<option value="TRL">TRL</option>
+<option value="TRX">TRX</option>
+<option value="TRY">TRY</option>
+<option value="TTD">TTD</option>
+<option value="TUSD">TUSD</option>
+<option value="TVD">TVD</option>
+<option value="TWD">TWD</option>
+<option value="TWT">TWT</option>
+<option value="TZS">TZS</option>
+<option value="UAH">UAH</option>
+<option value="UGX">UGX</option>
+<option value="UNI">UNI</option>
+<option value="USD">USD</option>
+<option value="USDC">USDC</option>
+<option value="USDD">USDD</option>
+<option value="USDP">USDP</option>
+<option value="USDT">USDT</option>
+<option value="UYU">UYU</option>
+<option value="UZS">UZS</option>
+<option value="VAL">VAL</option>
+<option value="VEB">VEB</option>
+<option value="VED">VED</option>
+<option value="VEF">VEF</option>
+<option value="VES">VES</option>
+<option value="VET">VET</option>
+<option value="VND">VND</option>
+<option value="VUV">VUV</option>
+<option value="WAVES">WAVES</option>
+<option value="WEMIX">WEMIX</option>
+<option value="WOO">WOO</option>
+<option value="WST">WST</option>
+<option value="XAF">XAF</option>
+<option value="XAG">XAG</option>
+<option value="XAU">XAU</option>
+<option value="XAUT">XAUT</option>
+<option value="XBT">XBT</option>
+<option value="XCD">XCD</option>
+<option value="XCG">XCG</option>
+<option value="XCH">XCH</option>
+<option value="XDC">XDC</option>
+<option value="XDR">XDR</option>
+<option value="XEC">XEC</option>
+<option value="XEM">XEM</option>
+<option value="XLM">XLM</option>
+<option value="XMR">XMR</option>
+<option value="XOF">XOF</option>
+<option value="XPD">XPD</option>
+<option value="XPF">XPF</option>
+<option value="XPT">XPT</option>
+<option value="XRP">XRP</option>
+<option value="XTZ">XTZ</option>
+<option value="YER">YER</option>
+<option value="ZAR">ZAR</option>
+<option value="ZEC">ZEC</option>
+<option value="ZIL">ZIL</option>
+<option value="ZMK">ZMK</option>
+<option value="ZMW">ZMW</option>
+<option value="ZWD">ZWD</option>
+<option value="ZWG">ZWG</option>
+<option value="ZWL">ZWL</option>
+
+                            </select>
+                        </div>
+                        
+                        <div class="arrow">→</div>
+                        
+                        <div class="form-group">
+                            <label>To Currency</label>
+                            <select id="to-currency">
+Found 339 currencies
+<option value="1INCH">1INCH</option>
+<option value="AAVE">AAVE</option>
+<option value="ADA">ADA</option>
+<option value="AED">AED</option>
+<option value="AFN">AFN</option>
+<option value="AGIX">AGIX</option>
+<option value="AKT">AKT</option>
+<option value="ALGO">ALGO</option>
+<option value="ALL">ALL</option>
+<option value="AMD">AMD</option>
+<option value="AMP">AMP</option>
+<option value="ANG">ANG</option>
+<option value="AOA">AOA</option>
+<option value="APE">APE</option>
+<option value="APT">APT</option>
+<option value="AR">AR</option>
+<option value="ARB">ARB</option>
+<option value="ARS">ARS</option>
+<option value="ATOM">ATOM</option>
+<option value="ATS">ATS</option>
+<option value="AUD">AUD</option>
+<option value="AVAX">AVAX</option>
+<option value="AWG">AWG</option>
+<option value="AXS">AXS</option>
+<option value="AZM">AZM</option>
+<option value="AZN">AZN</option>
+<option value="BAKE">BAKE</option>
+<option value="BAM">BAM</option>
+<option value="BAT">BAT</option>
+<option value="BBD">BBD</option>
+<option value="BCH">BCH</option>
+<option value="BDT">BDT</option>
+<option value="BEF">BEF</option>
+<option value="BGN">BGN</option>
+<option value="BHD">BHD</option>
+<option value="BIF">BIF</option>
+<option value="BMD">BMD</option>
+<option value="BNB">BNB</option>
+<option value="BND">BND</option>
+<option value="BOB">BOB</option>
+<option value="BRL">BRL</option>
+<option value="BSD">BSD</option>
+<option value="BSV">BSV</option>
+<option value="BSW">BSW</option>
+<option value="BTC">BTC</option>
+<option value="BTG">BTG</option>
+<option value="BTN">BTN</option>
+<option value="BTT">BTT</option>
+<option value="BUSD">BUSD</option>
+<option value="BWP">BWP</option>
+<option value="BYN">BYN</option>
+<option value="BYR">BYR</option>
+<option value="BZD">BZD</option>
+<option value="CAD">CAD</option>
+<option value="CAKE">CAKE</option>
+<option value="CDF">CDF</option>
+<option value="CELO">CELO</option>
+<option value="CFX">CFX</option>
+<option value="CHF">CHF</option>
+<option value="CHZ">CHZ</option>
+<option value="CLP">CLP</option>
+<option value="CNH">CNH</option>
+<option value="CNY">CNY</option>
+<option value="COMP">COMP</option>
+<option value="COP">COP</option>
+<option value="CRC">CRC</option>
+<option value="CRO">CRO</option>
+<option value="CRV">CRV</option>
+<option value="CSPR">CSPR</option>
+<option value="CUC">CUC</option>
+<option value="CUP">CUP</option>
+<option value="CVE">CVE</option>
+<option value="CVX">CVX</option>
+<option value="CYP">CYP</option>
+<option value="CZK">CZK</option>
+<option value="DAI">DAI</option>
+<option value="DASH">DASH</option>
+<option value="DCR">DCR</option>
+<option value="DEM">DEM</option>
+<option value="DFI">DFI</option>
+<option value="DJF">DJF</option>
+<option value="DKK">DKK</option>
+<option value="DOGE">DOGE</option>
+<option value="DOP">DOP</option>
+<option value="DOT">DOT</option>
+<option value="DYDX">DYDX</option>
+<option value="DZD">DZD</option>
+<option value="EEK">EEK</option>
+<option value="EGLD">EGLD</option>
+<option value="EGP">EGP</option>
+<option value="ENJ">ENJ</option>
+<option value="EOS">EOS</option>
+<option value="ERN">ERN</option>
+<option value="ESP">ESP</option>
+<option value="ETB">ETB</option>
+<option value="ETC">ETC</option>
+<option value="ETH">ETH</option>
+<option value="EUR">EUR</option>
+<option value="EURC">EURC</option>
+<option value="FEI">FEI</option>
+<option value="FIL">FIL</option>
+<option value="FIM">FIM</option>
+<option value="FJD">FJD</option>
+<option value="FKP">FKP</option>
+<option value="FLOW">FLOW</option>
+<option value="FLR">FLR</option>
+<option value="FRAX">FRAX</option>
+<option value="FRF">FRF</option>
+<option value="FTT">FTT</option>
+<option value="GALA">GALA</option>
+<option value="GBP">GBP</option>
+<option value="GEL">GEL</option>
+<option value="GGP">GGP</option>
+<option value="GHC">GHC</option>
+<option value="GHS">GHS</option>
+<option value="GIP">GIP</option>
+<option value="GMD">GMD</option>
+<option value="GMX">GMX</option>
+<option value="GNF">GNF</option>
+<option value="GNO">GNO</option>
+<option value="GRD">GRD</option>
+<option value="GRT">GRT</option>
+<option value="GT">GT</option>
+<option value="GTQ">GTQ</option>
+<option value="GUSD">GUSD</option>
+<option value="GYD">GYD</option>
+<option value="HBAR">HBAR</option>
+<option value="HKD">HKD</option>
+<option value="HNL">HNL</option>
+<option value="HNT">HNT</option>
+<option value="HOT">HOT</option>
+<option value="HRK">HRK</option>
+<option value="HT">HT</option>
+<option value="HTG">HTG</option>
+<option value="HUF">HUF</option>
+<option value="ICP">ICP</option>
+<option value="IDR">IDR</option>
+<option value="IEP">IEP</option>
+<option value="ILS">ILS</option>
+<option value="IMP">IMP</option>
+<option value="IMX">IMX</option>
+<option value="INJ">INJ</option>
+<option value="INR">INR</option>
+<option value="IQD">IQD</option>
+<option value="IRR">IRR</option>
+<option value="ISK">ISK</option>
+<option value="ITL">ITL</option>
+<option value="JEP">JEP</option>
+<option value="JMD">JMD</option>
+<option value="JOD">JOD</option>
+<option value="JPY">JPY</option>
+<option value="KAS">KAS</option>
+<option value="KAVA">KAVA</option>
+<option value="KCS">KCS</option>
+<option value="KDA">KDA</option>
+<option value="KES">KES</option>
+<option value="KGS">KGS</option>
+<option value="KHR">KHR</option>
+<option value="KLAY">KLAY</option>
+<option value="KMF">KMF</option>
+<option value="KNC">KNC</option>
+<option value="KPW">KPW</option>
+<option value="KRW">KRW</option>
+<option value="KSM">KSM</option>
+<option value="KWD">KWD</option>
+<option value="KYD">KYD</option>
+<option value="KZT">KZT</option>
+<option value="LAK">LAK</option>
+<option value="LBP">LBP</option>
+<option value="LDO">LDO</option>
+<option value="LEO">LEO</option>
+<option value="LINK">LINK</option>
+<option value="LKR">LKR</option>
+<option value="LRC">LRC</option>
+<option value="LRD">LRD</option>
+<option value="LSL">LSL</option>
+<option value="LTC">LTC</option>
+<option value="LTL">LTL</option>
+<option value="LUF">LUF</option>
+<option value="LUNA">LUNA</option>
+<option value="LUNC">LUNC</option>
+<option value="LVL">LVL</option>
+<option value="LYD">LYD</option>
+<option value="MAD">MAD</option>
+<option value="MANA">MANA</option>
+<option value="MBX">MBX</option>
+<option value="MDL">MDL</option>
+<option value="MGA">MGA</option>
+<option value="MGF">MGF</option>
+<option value="MINA">MINA</option>
+<option value="MKD">MKD</option>
+<option value="MKR">MKR</option>
+<option value="MMK">MMK</option>
+<option value="MNT">MNT</option>
+<option value="MOP">MOP</option>
+<option value="MRO">MRO</option>
+<option value="MRU">MRU</option>
+<option value="MTL">MTL</option>
+<option value="MUR">MUR</option>
+<option value="MVR">MVR</option>
+<option value="MWK">MWK</option>
+<option value="MXN">MXN</option>
+<option value="MXV">MXV</option>
+<option value="MYR">MYR</option>
+<option value="MZM">MZM</option>
+<option value="MZN">MZN</option>
+<option value="NAD">NAD</option>
+<option value="NEAR">NEAR</option>
+<option value="NEO">NEO</option>
+<option value="NEXO">NEXO</option>
+<option value="NFT">NFT</option>
+<option value="NGN">NGN</option>
+<option value="NIO">NIO</option>
+<option value="NLG">NLG</option>
+<option value="NOK">NOK</option>
+<option value="NPR">NPR</option>
+<option value="NZD">NZD</option>
+<option value="OKB">OKB</option>
+<option value="OMR">OMR</option>
+<option value="ONE">ONE</option>
+<option value="OP">OP</option>
+<option value="ORDI">ORDI</option>
+<option value="PAB">PAB</option>
+<option value="PAXG">PAXG</option>
+<option value="PEN">PEN</option>
+<option value="PEPE">PEPE</option>
+<option value="PGK">PGK</option>
+<option value="PHP">PHP</option>
+<option value="PKR">PKR</option>
+<option value="PLN">PLN</option>
+<option value="POL">POL</option>
+<option value="PTE">PTE</option>
+<option value="PYG">PYG</option>
+<option value="QAR">QAR</option>
+<option value="QNT">QNT</option>
+<option value="QTUM">QTUM</option>
+<option value="ROL">ROL</option>
+<option value="RON">RON</option>
+<option value="RPL">RPL</option>
+<option value="RSD">RSD</option>
+<option value="RUB">RUB</option>
+<option value="RUNE">RUNE</option>
+<option value="RVN">RVN</option>
+<option value="RWF">RWF</option>
+<option value="SAND">SAND</option>
+<option value="SAR">SAR</option>
+<option value="SBD">SBD</option>
+<option value="SCR">SCR</option>
+<option value="SDD">SDD</option>
+<option value="SDG">SDG</option>
+<option value="SEK">SEK</option>
+<option value="SGD">SGD</option>
+<option value="SHIB">SHIB</option>
+<option value="SHP">SHP</option>
+<option value="SIT">SIT</option>
+<option value="SKK">SKK</option>
+<option value="SLE">SLE</option>
+<option value="SLL">SLL</option>
+<option value="SNX">SNX</option>
+<option value="SOL">SOL</option>
+<option value="SOS">SOS</option>
+<option value="SPL">SPL</option>
+<option value="SRD">SRD</option>
+<option value="SRG">SRG</option>
+<option value="STD">STD</option>
+<option value="STN">STN</option>
+<option value="STX">STX</option>
+<option value="SUI">SUI</option>
+<option value="SVC">SVC</option>
+<option value="SYP">SYP</option>
+<option value="SZL">SZL</option>
+<option value="THB">THB</option>
+<option value="THETA">THETA</option>
+<option value="TJS">TJS</option>
+<option value="TMM">TMM</option>
+<option value="TMT">TMT</option>
+<option value="TND">TND</option>
+<option value="TON">TON</option>
+<option value="TOP">TOP</option>
+<option value="TRL">TRL</option>
+<option value="TRX">TRX</option>
+<option value="TRY">TRY</option>
+<option value="TTD">TTD</option>
+<option value="TUSD">TUSD</option>
+<option value="TVD">TVD</option>
+<option value="TWD">TWD</option>
+<option value="TWT">TWT</option>
+<option value="TZS">TZS</option>
+<option value="UAH">UAH</option>
+<option value="UGX">UGX</option>
+<option value="UNI">UNI</option>
+<option value="USD">USD</option>
+<option value="USDC">USDC</option>
+<option value="USDD">USDD</option>
+<option value="USDP">USDP</option>
+<option value="USDT">USDT</option>
+<option value="UYU">UYU</option>
+<option value="UZS">UZS</option>
+<option value="VAL">VAL</option>
+<option value="VEB">VEB</option>
+<option value="VED">VED</option>
+<option value="VEF">VEF</option>
+<option value="VES">VES</option>
+<option value="VET">VET</option>
+<option value="VND">VND</option>
+<option value="VUV">VUV</option>
+<option value="WAVES">WAVES</option>
+<option value="WEMIX">WEMIX</option>
+<option value="WOO">WOO</option>
+<option value="WST">WST</option>
+<option value="XAF">XAF</option>
+<option value="XAG">XAG</option>
+<option value="XAU">XAU</option>
+<option value="XAUT">XAUT</option>
+<option value="XBT">XBT</option>
+<option value="XCD">XCD</option>
+<option value="XCG">XCG</option>
+<option value="XCH">XCH</option>
+<option value="XDC">XDC</option>
+<option value="XDR">XDR</option>
+<option value="XEC">XEC</option>
+<option value="XEM">XEM</option>
+<option value="XLM">XLM</option>
+<option value="XMR">XMR</option>
+<option value="XOF">XOF</option>
+<option value="XPD">XPD</option>
+<option value="XPF">XPF</option>
+<option value="XPT">XPT</option>
+<option value="XRP">XRP</option>
+<option value="XTZ">XTZ</option>
+<option value="YER">YER</option>
+<option value="ZAR">ZAR</option>
+<option value="ZEC">ZEC</option>
+<option value="ZIL">ZIL</option>
+<option value="ZMK">ZMK</option>
+<option value="ZMW">ZMW</option>
+<option value="ZWD">ZWD</option>
+<option value="ZWG">ZWG</option>
+<option value="ZWL">ZWL</option>
+
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <button class="convert-btn" onclick="convertCurrency()">Convert</button>
+                    
+                    <div class="result" id="conversion-result"></div>
+                    
+                    <button class="favorite-btn" onclick="addToFavorites()">★ Add to Favorites</button>
+                </div>
+            </div>
+            
+            <!-- Favorites Tab -->
+            <div id="favorites-tab" class="content">
+                <h2>Favorite Conversions</h2>
+                <div class="favorites-grid" id="favorites-list">
+                    <p>Your favorite conversions will appear here.</p>
+                </div>
+            </div>
+            
+            <!-- History Tab -->
+            <div id="history-tab" class="content">
+                <h2>Conversion History</h2>
+                <div class="history-list" id="history-list">
+                    <p>Your conversion history will appear here.</p>
+                </div>
+            </div>
+            
+            <!-- MODERN PROFILE TAB -->
+            <div id="profile-tab" class="content">
+                <div class="profile-header">
+                    <div class="profile-avatar" id="user-avatar">
+                        👤
+                    </div>
+                    <h2 id="profile-name">Loading...</h2>
+                    <p id="profile-email" style="color: #666; margin-bottom: 10px;">Loading...</p>
+                    <span class="badge" id="user-tier">Standard Member</span>
+                </div>
+                
+                <div class="profile-stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="total-conversions">0</div>
+                        <div class="stat-label">Total Conversions</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="favorites-count">0</div>
+                        <div class="stat-label">Favorites</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="member-days">1</div>
+                        <div class="stat-label">Member Days</div>
+                    </div>
+                </div>
+                
+                <div class="profile-info">
+                    <h3 style="margin-bottom: 15px; color: #667eea;">Account Information</h3>
+                    <div class="info-item">
+                        <span class="info-label">User ID</span>
+                        <span class="info-value" id="user-id">Loading...</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Email Verified</span>
+                        <span class="info-value">
+                            <span class="badge" id="verification-status">Pending</span>
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Member Since</span>
+                        <span class="info-value" id="member-since">Loading...</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Last Active</span>
+                        <span class="info-value" id="last-active">Just now</span>
+                    </div>
+                </div>
+                
+                <div class="profile-actions">
+                    <button class="action-btn primary-btn" onclick="editProfile()">✏️ Edit Profile</button>
+                    <button class="action-btn secondary-btn" onclick="changePassword()">🔒 Change Password</button>
+                    <button class="action-btn secondary-btn" onclick="exportData()">📤 Export Data</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:10000/api';
+        let token = localStorage.getItem('token');
+        
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+        
+        function showTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.content').forEach(content => content.classList.remove('active'));
+            
+            document.querySelector(`.tab:nth-child(${getTabIndex(tabName)})`).classList.add('active');
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+            
+            if (tabName === 'favorites') loadFavorites();
+            if (tabName === 'history') loadHistory();
+            if (tabName === 'profile') loadModernProfile();
+        }
+        
+        function getTabIndex(tabName) {
+            const tabs = ['converter', 'favorites', 'history', 'profile'];
+            return tabs.indexOf(tabName) + 1;
+        }
+        
+        async function convertCurrency() {
+            const amount = document.getElementById('amount').value;
+            const fromCurrency = document.getElementById('from-currency').value;
+            const toCurrency = document.getElementById('to-currency').value;
+            
+            try {
+                const response = await fetch(`${API_BASE}/convert?from=${fromCurrency}&to=${toCurrency}&amount=${amount}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('conversion-result').innerHTML = 
+                        `${data.amount} ${data.from} = ${data.result} ${data.to}`;
+                } else {
+                    document.getElementById('conversion-result').innerHTML = 'Conversion failed';
+                }
+            } catch (error) {
+                document.getElementById('conversion-result').innerHTML = 'Network error';
+            }
+        }
+        
+        function addToFavorites() {
+            const fromCurrency = document.getElementById('from-currency').value;
+            const toCurrency = document.getElementById('to-currency').value;
+            alert(`Added ${fromCurrency} to ${toCurrency} to favorites!`);
+        }
+        
+        function loadFavorites() {
+            document.getElementById('favorites-list').innerHTML = '<p>Your favorite conversions will appear here.</p>';
+        }
+        
+        function loadHistory() {
+            document.getElementById('history-list').innerHTML = '<p>Your conversion history will appear here.</p>';
+        }
+        
+        // MODERN PROFILE FUNCTIONS
+        async function loadModernProfile() {
+            try {
+                const response = await fetch(`${API_BASE}/auth/profile`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.ok) {
+                    const user = await response.json();
+                    
+                    // Update profile information
+                    document.getElementById('user-name').textContent = `Welcome, ${user.name}`;
+                    document.getElementById('profile-name').textContent = user.name;
+                    document.getElementById('profile-email').textContent = user.email;
+                    document.getElementById('user-id').textContent = user.id.substring(0, 8) + '...';
+                    
+                    // Create avatar from name initials
+                    const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                    document.getElementById('user-avatar').textContent = initials || '👤';
+                    
+                    // Calculate member days
+                    const memberSince = new Date(user.createdAt || new Date());
+                    const today = new Date();
+                    const memberDays = Math.floor((today - memberSince) / (1000 * 60 * 60 * 24)) + 1;
+                    document.getElementById('member-since').textContent = new Date(user.createdAt).toLocaleDateString();
+                    document.getElementById('member-days').textContent = memberDays;
+                    
+                    // Generate random stats (for demo - replace with real data later)
+                    document.getElementById('total-conversions').textContent = Math.floor(Math.random() * 50) + 10;
+                    document.getElementById('favorites-count').textContent = Math.floor(Math.random() * 10) + 1;
+                    
+                    // Set verification status
+                    document.getElementById('verification-status').textContent = 'Verified';
+                    document.getElementById('verification-status').style.background = '#4CAF50';
+                    document.getElementById('verification-status').style.color = 'white';
+                    
+                }
+            } catch (error) {
+                document.getElementById('profile-name').textContent = 'Error loading profile';
+            }
+        }
+        
+        function editProfile() {
+            alert('Edit profile feature coming soon!');
+        }
+        
+        function changePassword() {
+            alert('Change password feature coming soon!');
+        }
+        
+        function exportData() {
+            alert('Data export feature coming soon!');
+        }
+        
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.href = 'login.html';
+        }
+        
+        // Load profile on page load
+        loadModernProfile();
+    </script>
+</body>
+</html>
